@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__playwright__browser_navigate",
+      "mcp__playwright__browser_snapshot",
+      "mcp__playwright__browser_take_screenshot",
+      "mcp__playwright__browser_console_messages",
+      "mcp__filesystem__directory_tree",
+      "mcp__filesystem__list_directory_with_sizes",
+      "Bash(claude mcp list)",
+      "Bash(speedtest-cli *)",
+      "Bash(npx tsc --noEmit)",
+      "Bash(open *)"
+    ]
+  }
+}
