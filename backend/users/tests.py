@@ -66,3 +66,56 @@ def test_login_returns_tokens(client: APIClient) -> None:
     response = client.post(reverse('auth-login'), {'email': 'login@example.com', 'password': 'TestPass123'})
     assert response.status_code == 200
     assert 'access' in response.data
+
+
+@pytest.mark.django_db
+def test_me_authenticated_returns_user_data(client: APIClient) -> None:
+    user = User.objects.create_user(
+        email='me@example.com', password='pass', is_email_verified=True
+    )
+    client.force_authenticate(user=user)
+    response = client.get(reverse('auth-me'))
+    assert response.status_code == 200
+    assert response.data['email'] == 'me@example.com'
+    assert 'id' in response.data
+
+
+@pytest.mark.django_db
+def test_me_unauthenticated_returns_401(client: APIClient) -> None:
+    response = client.get(reverse('auth-me'))
+    assert response.status_code == 401
+
+
+@pytest.mark.django_db
+def test_verify_expired_code_fails(client: APIClient) -> None:
+    from datetime import timedelta
+    from django.utils import timezone
+
+    user = User.objects.create_user(email='exp@example.com', password='pass')
+    EmailVerification.objects.create(
+        user=user,
+        code='111111',
+        expires_at=timezone.now() - timedelta(minutes=1),
+    )
+    response = client.post(
+        reverse('auth-verify'), {'email': 'exp@example.com', 'code': '111111'}
+    )
+    assert response.status_code == 400
+
+
+@pytest.mark.django_db
+def test_register_unverified_existing_user_can_register_again(
+    client: APIClient, mailoutbox: list
+) -> None:
+    """Если пользователь зарегистрировался, но не верифицировался — можно зарегистрироваться снова."""
+    User.objects.create_user(email='retry@example.com', password='OldPass123')
+
+    response = client.post(
+        reverse('auth-register'),
+        {'email': 'retry@example.com', 'password': 'NewPass456'},
+    )
+    assert response.status_code == 201
+    # Должен быть один пользователь с новым паролем
+    user = User.objects.get(email='retry@example.com')
+    assert user.check_password('NewPass456')
+    assert len(mailoutbox) == 1
