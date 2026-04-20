@@ -2,26 +2,335 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --bg: #0e0c0a;
+    --surface: #1a1510;
+    --surface-raised: #231d16;
+    --border: #3d3120;
+    --border-subtle: #28211a;
+    --gold: #c9a227;
+    --gold-bright: #f0c040;
+    --gold-dim: #8b6914;
+    --text: #e8dcc8;
+    --text-muted: #9a8c7a;
+    --text-faint: #5a4e40;
+    --danger: #e05555;
+    --success: #4daf6f;
+  }
+
+  html {
+    color-scheme: dark;
+  }
+
+  body {
+    background-color: var(--bg);
+    background-image:
+      radial-gradient(ellipse at 15% 15%, rgba(201, 162, 39, 0.04) 0%, transparent 55%),
+      radial-gradient(ellipse at 85% 85%, rgba(139, 105, 20, 0.03) 0%, transparent 55%);
+    color: var(--text);
+    font-family: var(--font-crimson, Georgia, 'Times New Roman', serif);
+    font-size: 17px;
+    line-height: 1.65;
+    min-height: 100vh;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-cinzel, 'Palatino Linotype', Georgia, serif);
+    letter-spacing: 0.03em;
+    color: var(--text);
+  }
+
+  ::selection {
+    background: rgba(201, 162, 39, 0.3);
+    color: var(--gold-bright);
+  }
+
+  * {
+    box-sizing: border-box;
   }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+@layer components {
+  /* ── Кнопки ────────────────────────────────────── */
+  .btn-gold {
+    @apply inline-flex items-center justify-center rounded px-5 py-2.5 text-sm font-semibold tracking-wide transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed;
+    font-family: var(--font-cinzel, Georgia, serif);
+    background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dim) 100%);
+    color: #100e0a;
+    border: 1px solid var(--gold-dim);
+  }
+  .btn-gold:hover:not(:disabled) {
+    background: linear-gradient(135deg, var(--gold-bright) 0%, var(--gold) 100%);
+    box-shadow: 0 0 18px rgba(201, 162, 39, 0.35), 0 2px 8px rgba(0, 0, 0, 0.3);
+    transform: translateY(-1px);
+  }
+  .btn-gold:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center rounded px-5 py-2.5 text-sm transition-all duration-200;
+    background: var(--surface-raised);
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+  }
+  .btn-ghost:hover {
+    border-color: var(--gold-dim);
+    color: var(--text);
+  }
+
+  .btn-danger-sm {
+    @apply inline-flex items-center justify-center rounded px-3 py-1.5 text-sm transition-all duration-200;
+    background: transparent;
+    color: var(--danger);
+    border: 1px solid #5a1f1f;
+  }
+  .btn-danger-sm:hover {
+    background: rgba(224, 85, 85, 0.12);
+    border-color: var(--danger);
+  }
+
+  /* ── Поля форм ─────────────────────────────────── */
+  .field-input {
+    @apply w-full rounded px-4 py-2.5 text-base outline-none transition-all duration-200;
+    background: var(--bg);
+    color: var(--text);
+    border: 1px solid var(--border);
+    font-family: inherit;
+    font-size: 16px;
+  }
+  .field-input:focus {
+    border-color: var(--gold-dim);
+    box-shadow: 0 0 0 2px rgba(139, 105, 20, 0.25);
+  }
+  .field-input::placeholder {
+    color: var(--text-faint);
+  }
+
+  .field-select {
+    @apply w-full rounded px-4 py-2.5 text-base outline-none transition-all duration-200 cursor-pointer;
+    background: var(--bg);
+    color: var(--text);
+    border: 1px solid var(--border);
+    font-family: inherit;
+    font-size: 16px;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%239a8c7a' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 36px;
+  }
+  .field-select:focus {
+    border-color: var(--gold-dim);
+    box-shadow: 0 0 0 2px rgba(139, 105, 20, 0.25);
+  }
+  .field-select option {
+    background: #1a1510;
+    color: var(--text);
+  }
+
+  /* ── Карточки ──────────────────────────────────── */
+  .guild-card {
+    @apply rounded-lg;
+    background: var(--surface);
+    border: 1px solid var(--border-subtle);
+  }
+
+  .guild-card-hover {
+    @apply transition-all duration-300;
+  }
+  .guild-card-hover:hover {
+    border-color: var(--border) !important;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4), 0 0 12px rgba(201, 162, 39, 0.08);
+    transform: translateY(-2px);
+  }
+
+  /* ── Форма входа/регистрации ───────────────────── */
+  .auth-panel {
+    @apply rounded-xl p-8;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5), 0 0 60px rgba(139, 105, 20, 0.05);
+  }
+
+  /* ── Разделитель ───────────────────────────────── */
+  .gold-divider {
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--gold-dim), transparent);
+  }
+
+  /* ── Бейджи статуса ────────────────────────────── */
+  .status-badge {
+    @apply inline-flex items-center rounded px-2 py-0.5 text-xs font-semibold tracking-wide uppercase;
+  }
+
+  /* ── TipTap кнопки тулбара ─────────────────────── */
+  .tiptap-btn {
+    padding: 3px 9px;
+    font-size: 0.8rem;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    line-height: 1.4;
+  }
+  .tiptap-btn:hover {
+    background: var(--surface-raised);
+    color: var(--text);
+    border-color: var(--gold-dim);
+  }
+  .tiptap-btn.is-active {
+    background: rgba(139, 105, 20, 0.3);
+    color: var(--gold-bright);
+    border-color: var(--gold-dim);
+  }
+}
+
+/* ── TipTap редактор ───────────────────────────────── */
+.ProseMirror {
+  outline: none;
+  color: var(--text);
+  font-family: var(--font-crimson, Georgia, serif);
+  font-size: 16px;
+  line-height: 1.75;
+  caret-color: var(--gold);
+}
+.ProseMirror > * + * {
+  margin-top: 0.7em;
+}
+.ProseMirror h2 {
+  font-family: var(--font-cinzel, Georgia, serif);
+  font-size: 1.35em;
+  color: var(--gold);
+  margin-top: 1.2em;
+  margin-bottom: 0.4em;
+  letter-spacing: 0.04em;
+}
+.ProseMirror h3 {
+  font-family: var(--font-cinzel, Georgia, serif);
+  font-size: 1.15em;
+  color: var(--gold);
+  margin-top: 1em;
+  margin-bottom: 0.3em;
+  letter-spacing: 0.03em;
+}
+.ProseMirror ul {
+  list-style: disc;
+  padding-left: 1.6em;
+}
+.ProseMirror ol {
+  list-style: decimal;
+  padding-left: 1.6em;
+}
+.ProseMirror li {
+  margin-bottom: 0.25em;
+}
+.ProseMirror strong {
+  color: var(--gold-bright);
+  font-weight: 700;
+}
+.ProseMirror em {
+  color: var(--text-muted);
+  font-style: italic;
+}
+.ProseMirror s {
+  text-decoration: line-through;
+  color: var(--text-faint);
+}
+.ProseMirror img {
+  max-width: 100%;
+  border-radius: 6px;
+  margin: 0.5em 0;
+}
+.ProseMirror iframe {
+  width: 100%;
+  min-height: 300px;
+  border-radius: 6px;
+}
+.ProseMirror p.is-editor-empty:first-child::before {
+  color: var(--text-faint);
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
+/* ── Контент объявления (dangerouslySetInnerHTML) ──── */
+.ad-content {
+  color: var(--text);
+  font-family: var(--font-crimson, Georgia, serif);
+  font-size: 16px;
+  line-height: 1.75;
+}
+.ad-content > * + * {
+  margin-top: 0.7em;
+}
+.ad-content h2 {
+  font-family: var(--font-cinzel, Georgia, serif);
+  font-size: 1.35em;
+  color: var(--gold);
+  margin-top: 1.2em;
+  margin-bottom: 0.4em;
+}
+.ad-content h3 {
+  font-family: var(--font-cinzel, Georgia, serif);
+  font-size: 1.15em;
+  color: var(--gold);
+  margin-top: 1em;
+  margin-bottom: 0.3em;
+}
+.ad-content p {
+  margin-bottom: 0.7em;
+}
+.ad-content ul {
+  list-style: disc;
+  padding-left: 1.6em;
+  margin-bottom: 0.7em;
+}
+.ad-content ol {
+  list-style: decimal;
+  padding-left: 1.6em;
+  margin-bottom: 0.7em;
+}
+.ad-content li {
+  margin-bottom: 0.25em;
+}
+.ad-content strong {
+  color: var(--gold-bright);
+  font-weight: 700;
+}
+.ad-content em {
+  color: var(--text-muted);
+  font-style: italic;
+}
+.ad-content a {
+  color: var(--gold);
+  text-decoration: underline;
+}
+.ad-content img {
+  max-width: 100%;
+  border-radius: 6px;
+}
+.ad-content iframe {
+  width: 100%;
+  min-height: 300px;
+  border-radius: 6px;
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+  .font-display {
+    font-family: var(--font-cinzel-decorative, 'Palatino Linotype', serif);
+  }
+  .font-heading {
+    font-family: var(--font-cinzel, Georgia, serif);
+  }
+  .font-body {
+    font-family: var(--font-crimson, Georgia, serif);
   }
 }

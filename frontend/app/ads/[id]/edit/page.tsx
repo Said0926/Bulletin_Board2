@@ -35,7 +35,6 @@ export default function EditAdPage({ params }: { params: Promise<{ id: string }>
       .finally(() => setLoading(false))
   }, [id, router])
 
-  // Только автор может редактировать
   useEffect(() => {
     if (!authLoading && !loading && ad && user?.id !== ad.author_id) {
       router.push(`/ads/${id}`)
@@ -61,54 +60,82 @@ export default function EditAdPage({ params }: { params: Promise<{ id: string }>
     }
   }
 
-  if (loading || authLoading) return <p className="text-gray-500">Загрузка...</p>
+  if (loading || authLoading) return <p style={{ color: 'var(--text-faint)' }}>Загрузка...</p>
 
   return (
     <div className="max-w-2xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6">Редактировать объявление</h1>
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="mb-7">
+        <h1
+          className="font-heading text-2xl mb-2"
+          style={{ color: 'var(--gold)', letterSpacing: '0.06em' }}
+        >
+          Редактировать объявление
+        </h1>
+        <div className="gold-divider" />
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-5">
         <div>
-          <label className="block text-sm font-medium mb-1">Заголовок</label>
+          <label
+            className="block text-sm mb-2 font-heading"
+            style={{ color: 'var(--text-muted)', letterSpacing: '0.04em' }}
+          >
+            Заголовок
+          </label>
           <input
             type="text"
             value={title}
             onChange={e => setTitle(e.target.value)}
             required
             maxLength={255}
-            className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+            className="field-input"
           />
         </div>
+
         <div>
-          <label className="block text-sm font-medium mb-1">Категория</label>
+          <label
+            className="block text-sm mb-2 font-heading"
+            style={{ color: 'var(--text-muted)', letterSpacing: '0.04em' }}
+          >
+            Категория
+          </label>
           <select
             value={category}
             onChange={e => setCategory(e.target.value)}
             required
-            className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+            className="field-select"
           >
             {categories.map(c => (
               <option key={c.value} value={c.value}>{c.label}</option>
             ))}
           </select>
         </div>
+
         <div>
-          <label className="block text-sm font-medium mb-1">Содержание</label>
-          {/* Ключ нужен чтобы TipTap переинициализировался когда content загружен */}
-          {content !== '' && <TipTapEditor key={content.slice(0, 20)} content={content} onChange={setContent} />}
-        </div>
-        {error && <p className="text-red-500 text-sm">{error}</p>}
-        <div className="flex gap-3">
-          <button
-            type="submit"
-            disabled={submitting}
-            className="bg-indigo-600 text-white px-6 py-2 rounded hover:bg-indigo-700 transition disabled:opacity-50"
+          <label
+            className="block text-sm mb-2 font-heading"
+            style={{ color: 'var(--text-muted)', letterSpacing: '0.04em' }}
           >
+            Содержание
+          </label>
+          {/* Ключ нужен чтобы TipTap переинициализировался когда content загружен */}
+          {content !== '' && (
+            <TipTapEditor key={content.slice(0, 20)} content={content} onChange={setContent} />
+          )}
+        </div>
+
+        {error && (
+          <p className="text-sm" style={{ color: 'var(--danger)' }}>{error}</p>
+        )}
+
+        <div className="flex gap-3 pt-2">
+          <button type="submit" disabled={submitting} className="btn-gold px-8 py-2.5">
             {submitting ? 'Сохранение...' : 'Сохранить'}
           </button>
           <button
             type="button"
             onClick={() => router.push(`/ads/${id}`)}
-            className="px-6 py-2 rounded border border-gray-300 hover:bg-gray-100 transition"
+            className="btn-ghost px-8 py-2.5"
           >
             Отмена
           </button>

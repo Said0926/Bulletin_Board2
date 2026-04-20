@@ -1,7 +1,5 @@
 'use client'
 
-// Главная страница — список объявлений с фильтром по категории
-
 import { useEffect, useState } from 'react'
 import { getAds, getCategories, type Ad, type Category, type PaginatedResponse } from '@/lib/api'
 import AdCard from '@/components/AdCard'
@@ -35,7 +33,6 @@ export default function HomePage() {
       .finally(() => setLoading(false))
   }, [activeCategory])
 
-  // Загрузить следующую страницу объявлений
   async function loadMore() {
     if (!nextPage) return
     setLoadingMore(true)
@@ -54,40 +51,76 @@ export default function HomePage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-6">Объявления</h1>
+      {/* Заголовок страницы */}
+      <div className="mb-8">
+        <h1
+          className="font-heading text-3xl mb-1"
+          style={{ color: 'var(--gold)', letterSpacing: '0.06em' }}
+        >
+          Доска объявлений
+        </h1>
+        <div className="gold-divider mt-3" />
+      </div>
 
-      {/* Фильтр по категории */}
-      <div className="flex flex-wrap gap-2 mb-6">
+      {/* Фильтр по категориям */}
+      <div className="flex flex-wrap gap-2 mb-7">
         <button
           onClick={() => setActiveCategory('')}
-          className={`px-3 py-1.5 rounded-full text-sm border transition ${
+          className="px-3 py-1.5 rounded-full text-sm transition-all duration-200"
+          style={
             activeCategory === ''
-              ? 'bg-indigo-600 text-white border-indigo-600'
-              : 'border-gray-300 hover:bg-gray-100'
-          }`}
+              ? {
+                  background: 'var(--gold-dim)',
+                  color: 'var(--gold-bright)',
+                  border: '1px solid var(--gold)',
+                  fontFamily: 'var(--font-cinzel, Georgia, serif)',
+                  letterSpacing: '0.04em',
+                }
+              : {
+                  background: 'transparent',
+                  color: 'var(--text-muted)',
+                  border: '1px solid var(--border)',
+                }
+          }
         >
           Все
         </button>
+
         {categories.map(cat => (
           <button
             key={cat.value}
             onClick={() => setActiveCategory(cat.value)}
-            className={`px-3 py-1.5 rounded-full text-sm border transition ${
+            className="px-3 py-1.5 rounded-full text-sm transition-all duration-200"
+            style={
               activeCategory === cat.value
-                ? 'bg-indigo-600 text-white border-indigo-600'
-                : 'border-gray-300 hover:bg-gray-100'
-            }`}
+                ? {
+                    background: 'var(--gold-dim)',
+                    color: 'var(--gold-bright)',
+                    border: '1px solid var(--gold)',
+                    fontFamily: 'var(--font-cinzel, Georgia, serif)',
+                    letterSpacing: '0.04em',
+                  }
+                : {
+                    background: 'transparent',
+                    color: 'var(--text-muted)',
+                    border: '1px solid var(--border)',
+                  }
+            }
           >
             {cat.label}
           </button>
         ))}
       </div>
 
-      {loading && <p className="text-gray-500">Загрузка...</p>}
-      {error && <p className="text-red-500">{error}</p>}
+      {loading && (
+        <p style={{ color: 'var(--text-faint)' }}>Загрузка...</p>
+      )}
+      {error && (
+        <p style={{ color: 'var(--danger)' }}>{error}</p>
+      )}
 
       {!loading && !error && ads.length === 0 && (
-        <p className="text-gray-500">Объявлений пока нет.</p>
+        <p style={{ color: 'var(--text-faint)' }}>Объявлений пока нет.</p>
       )}
 
       <div className="grid gap-4 sm:grid-cols-2">
@@ -97,11 +130,11 @@ export default function HomePage() {
       </div>
 
       {nextPage && (
-        <div className="mt-6 flex justify-center">
+        <div className="mt-8 flex justify-center">
           <button
             onClick={loadMore}
             disabled={loadingMore}
-            className="px-5 py-2 rounded border border-gray-300 text-sm hover:bg-gray-100 transition disabled:opacity-50"
+            className="btn-ghost px-8 py-2.5 text-sm disabled:opacity-50"
           >
             {loadingMore ? 'Загрузка...' : 'Загрузить ещё'}
           </button>

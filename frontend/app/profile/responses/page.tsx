@@ -1,8 +1,5 @@
 'use client'
 
-// Приватная страница: отклики на мои объявления.
-// Фильтр по объявлению, принятие отклика, удаление.
-
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { getMyResponses, acceptResponse, deleteResponse, type AdResponse } from '@/lib/api'
@@ -19,7 +16,6 @@ export default function MyResponsesPage() {
     if (!authLoading && !user) router.push('/auth/login')
   }, [user, authLoading, router])
 
-  // Загружаем отклики (с фильтром или без)
   useEffect(() => {
     if (!user) return
     setLoading(true)
@@ -46,20 +42,35 @@ export default function MyResponsesPage() {
     }
   }
 
-  if (authLoading) return <p className="text-gray-500">Загрузка...</p>
+  if (authLoading) return <p style={{ color: 'var(--text-faint)' }}>Загрузка...</p>
   if (!user) return null
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-6">Отклики на мои объявления</h1>
+      {/* Заголовок */}
+      <div className="mb-7">
+        <h1
+          className="font-heading text-2xl mb-2"
+          style={{ color: 'var(--gold)', letterSpacing: '0.06em' }}
+        >
+          Отклики на мои объявления
+        </h1>
+        <div className="gold-divider" />
+      </div>
 
-      {/* Фильтр по объявлению — строим из уже загруженных откликов */}
+      {/* Фильтр по объявлению */}
       <div className="mb-6 flex items-center gap-3">
-        <label className="text-sm font-medium">Объявление:</label>
+        <label
+          className="text-sm font-heading shrink-0"
+          style={{ color: 'var(--text-muted)', letterSpacing: '0.04em' }}
+        >
+          Объявление:
+        </label>
         <select
           value={filterAdId}
           onChange={e => setFilterAdId(e.target.value)}
-          className="border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+          className="field-select"
+          style={{ maxWidth: '320px' }}
         >
           <option value="">Все объявления</option>
           {Array.from(new Map(responses.map(r => [r.ad, r.ad_title])).entries()).map(([id, title]) => (
@@ -68,54 +79,73 @@ export default function MyResponsesPage() {
         </select>
       </div>
 
-      {loading && <p className="text-gray-500">Загрузка...</p>}
+      {loading && <p style={{ color: 'var(--text-faint)' }}>Загрузка...</p>}
 
       {!loading && responses.length === 0 && (
-        <p className="text-gray-500">Откликов пока нет.</p>
+        <p style={{ color: 'var(--text-faint)' }}>Откликов пока нет.</p>
       )}
 
       <div className="space-y-4">
         {responses.map(r => (
           <div
             key={r.id}
-            className={`bg-white border rounded-lg p-4 ${
-              r.status === 'accepted'
-                ? 'border-green-300 bg-green-50'
+            className="guild-card rounded-lg p-5"
+            style={{
+              opacity: r.status === 'rejected' ? 0.5 : 1,
+              borderLeft: r.status === 'accepted'
+                ? '3px solid var(--success)'
                 : r.status === 'rejected'
-                ? 'border-gray-200 opacity-60'
-                : 'border-gray-200'
-            }`}
+                ? '3px solid var(--border)'
+                : '3px solid var(--gold-dim)',
+            }}
           >
-            <div className="flex items-center justify-between mb-2">
+            <div className="flex items-start justify-between gap-4 mb-3">
               <div>
-                <span className="text-sm font-medium">{r.author_email}</span>
-                <span className="text-xs text-gray-400 ml-2">
+                <span className="text-sm font-semibold" style={{ color: 'var(--text)' }}>
+                  {r.author_email}
+                </span>
+                <span className="text-xs ml-2" style={{ color: 'var(--text-faint)' }}>
                   на «{r.ad_title}»
                 </span>
               </div>
-              <div className="flex items-center gap-2">
+
+              <div className="flex items-center gap-2 shrink-0">
                 {r.status === 'accepted' ? (
-                  <span className="text-xs font-semibold text-green-600 bg-green-100 px-2 py-0.5 rounded">✓ Принят</span>
+                  <span
+                    className="status-badge"
+                    style={{ background: 'rgba(77,175,111,0.15)', color: 'var(--success)', border: '1px solid rgba(77,175,111,0.3)' }}
+                  >
+                    ✓ Принят
+                  </span>
                 ) : r.status === 'rejected' ? (
-                  <span className="text-xs font-semibold text-gray-400 bg-gray-100 px-2 py-0.5 rounded">Отклонён</span>
+                  <span
+                    className="status-badge"
+                    style={{ background: 'var(--surface-raised)', color: 'var(--text-faint)', border: '1px solid var(--border-subtle)' }}
+                  >
+                    Отклонён
+                  </span>
                 ) : (
                   <button
                     onClick={() => handleAccept(r.id)}
-                    className="text-xs bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-3 py-1 rounded transition"
+                    className="btn-gold px-3 py-1 text-xs"
                   >
                     Принять
                   </button>
                 )}
                 <button
                   onClick={() => handleDelete(r.id)}
-                  className="text-xs text-red-400 hover:text-red-600 transition"
+                  className="text-sm transition-colors duration-200 hover:text-guild-danger"
+                  style={{ color: 'var(--text-faint)' }}
                 >
                   Удалить
                 </button>
               </div>
             </div>
-            <p className="text-sm text-gray-700 whitespace-pre-wrap">{r.text}</p>
-            <p className="text-xs text-gray-400 mt-2">
+
+            <p className="text-sm whitespace-pre-wrap" style={{ color: 'var(--text-muted)' }}>
+              {r.text}
+            </p>
+            <p className="text-xs mt-3" style={{ color: 'var(--text-faint)' }}>
               {new Date(r.created_at).toLocaleString('ru-RU')}
             </p>
           </div>

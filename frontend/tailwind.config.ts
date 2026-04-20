@@ -9,11 +9,28 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
+        "guild-bg": "var(--bg)",
+        "guild-surface": "var(--surface)",
+        "guild-surface-raised": "var(--surface-raised)",
+        "guild-border": "var(--border)",
+        "guild-border-subtle": "var(--border-subtle)",
+        "guild-gold": "var(--gold)",
+        "guild-gold-bright": "var(--gold-bright)",
+        "guild-gold-dim": "var(--gold-dim)",
+        "guild-text": "var(--text)",
+        "guild-text-muted": "var(--text-muted)",
+        "guild-text-faint": "var(--text-faint)",
+        "guild-danger": "var(--danger)",
+        "guild-success": "var(--success)",
+      },
+      fontFamily: {
+        display: ["var(--font-cinzel-decorative)", "Georgia", "serif"],
+        heading: ["var(--font-cinzel)", "Georgia", "serif"],
+        body: ["var(--font-crimson)", "Georgia", "serif"],
       },
     },
   },
   plugins: [],
 };
+
 export default config;

@@ -1,14 +1,17 @@
 'use client'
 
-// Детальная страница объявления.
-// Показывает контент, кнопки редактирования/удаления для автора,
-// форму отклика для других авторизованных пользователей.
-
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { getAd, createResponse, deleteAd, type Ad } from '@/lib/api'
 import { useAuth } from '@/lib/auth-context'
+
+const CATEGORY_BORDER: Record<string, string> = {
+  TANK: '#2563eb', HEALER: '#16a34a', DPS: '#dc2626',
+  TRADER: '#ca8a04', GUILDMASTER: '#9333ea', QUESTGIVER: '#ea580c',
+  BLACKSMITH: '#78716c', TANNER: '#b45309', ALCHEMIST: '#0d9488',
+  SPELLMASTER: '#7c3aed',
+}
 
 export default function AdDetailPage({ params }: { params: { id: string } }) {
   const { id } = params
@@ -55,74 +58,95 @@ export default function AdDetailPage({ params }: { params: { id: string } }) {
     }
   }
 
-  if (loading) return <p className="text-gray-500">Загрузка...</p>
+  if (loading) return <p style={{ color: 'var(--text-faint)' }}>Загрузка...</p>
   if (!ad) return null
 
   const isAuthor = user?.id === ad.author_id
+  const borderColor = CATEGORY_BORDER[ad.category] ?? 'var(--gold-dim)'
 
   return (
     <div className="max-w-2xl mx-auto">
       {/* Шапка */}
-      <div className="flex items-center justify-between mb-2">
-        <span className="text-xs font-semibold uppercase tracking-wide bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded">
+      <div className="flex items-start justify-between mb-3 gap-4">
+        <span
+          className="status-badge text-xs px-2.5 py-1 rounded"
+          style={{
+            borderLeft: `3px solid ${borderColor}`,
+            background: 'var(--surface)',
+            color: 'var(--text-muted)',
+            border: `1px solid var(--border-subtle)`,
+            borderLeftColor: borderColor,
+            borderLeftWidth: '3px',
+          }}
+        >
           {ad.category_display}
         </span>
-        <span className="text-xs text-gray-400">
-          {new Date(ad.created_at).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })}
+        <span className="text-sm shrink-0" style={{ color: 'var(--text-faint)' }}>
+          {new Date(ad.created_at).toLocaleDateString('ru-RU', {
+            day: 'numeric', month: 'long', year: 'numeric',
+          })}
         </span>
       </div>
 
-      <h1 className="text-2xl font-bold mb-1">{ad.title}</h1>
-      <p className="text-sm text-gray-500 mb-4">Автор: {ad.author_email}</p>
+      <h1
+        className="font-heading text-2xl mb-1 leading-snug"
+        style={{ color: 'var(--text)', letterSpacing: '0.03em' }}
+      >
+        {ad.title}
+      </h1>
+      <p className="text-sm mb-5" style={{ color: 'var(--text-faint)' }}>
+        Автор: {ad.author_email}
+      </p>
 
       {/* Кнопки автора */}
       {isAuthor && (
-        <div className="flex gap-2 mb-4">
-          <Link
-            href={`/ads/${ad.id}/edit`}
-            className="text-sm bg-gray-100 hover:bg-gray-200 px-3 py-1.5 rounded transition"
-          >
+        <div className="flex gap-2 mb-5">
+          <Link href={`/ads/${ad.id}/edit`} className="btn-ghost px-4 py-1.5 text-sm">
             Редактировать
           </Link>
-          <button
-            onClick={handleDelete}
-            className="text-sm bg-red-50 hover:bg-red-100 text-red-600 px-3 py-1.5 rounded transition"
-          >
+          <button onClick={handleDelete} className="btn-danger-sm">
             Удалить
           </button>
         </div>
       )}
 
-      {/* HTML-контент от TipTap */}
+      <div className="gold-divider mb-5" />
+
+      {/* Контент объявления */}
       <div
-        className="prose prose-sm max-w-none bg-white border border-gray-200 rounded-lg p-6 mb-8"
+        className="ad-content guild-card p-6 mb-8"
         dangerouslySetInnerHTML={{ __html: ad.content }}
       />
 
       {/* Форма отклика */}
       {user && !isAuthor && (
-        <div className="bg-white border border-gray-200 rounded-lg p-5">
-          <h2 className="font-semibold mb-3">Оставить отклик</h2>
+        <div className="guild-card p-6">
+          <h2
+            className="font-heading text-base mb-4"
+            style={{ color: 'var(--gold)', letterSpacing: '0.05em' }}
+          >
+            Оставить отклик
+          </h2>
+
           {responseSent ? (
-            <p className="text-green-600 text-sm">
+            <p className="text-sm" style={{ color: 'var(--success)' }}>
               ✓ Отклик отправлен! Автор получит уведомление на email.
             </p>
           ) : (
-            <form onSubmit={handleResponse} className="space-y-3">
+            <form onSubmit={handleResponse} className="space-y-4">
               <textarea
                 value={responseText}
                 onChange={e => setResponseText(e.target.value)}
                 required
                 rows={4}
                 placeholder="Напишите ваш отклик..."
-                className="w-full border border-gray-300 rounded px-3 py-2 text-sm resize-y focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                className="field-input resize-y"
+                style={{ minHeight: '100px' }}
               />
-              {responseError && <p className="text-red-500 text-sm">{responseError}</p>}
-              <button
-                type="submit"
-                disabled={submitting}
-                className="bg-indigo-600 text-white px-5 py-2 rounded hover:bg-indigo-700 transition disabled:opacity-50"
-              >
+              {responseError && (
+                <p className="text-sm" style={{ color: 'var(--danger)' }}>{responseError}</p>
+              )}
+              <button type="submit" disabled={submitting} className="btn-gold px-6 py-2.5">
                 {submitting ? 'Отправка...' : 'Отправить отклик'}
               </button>
             </form>
@@ -131,8 +155,15 @@ export default function AdDetailPage({ params }: { params: { id: string } }) {
       )}
 
       {!user && (
-        <p className="text-sm text-gray-500">
-          <Link href="/auth/login" className="text-indigo-600 hover:underline">Войдите</Link>, чтобы оставить отклик.
+        <p className="text-sm" style={{ color: 'var(--text-faint)' }}>
+          <Link
+            href="/auth/login"
+            className="transition-colors duration-200 hover:text-guild-gold"
+            style={{ color: 'var(--text-muted)' }}
+          >
+            Войдите
+          </Link>
+          , чтобы оставить отклик.
         </p>
       )}
     </div>

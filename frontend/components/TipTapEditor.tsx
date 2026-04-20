@@ -1,8 +1,5 @@
 'use client'
 
-// Rich-text редактор на базе TipTap.
-// Поддерживает: жирный/курсив/подчёркивание, заголовки, списки, изображения, YouTube-видео.
-
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Image from '@tiptap/extension-image'
@@ -39,7 +36,6 @@ export default function TipTapEditor({ content, onChange }: Props) {
     } catch {
       alert('Не удалось загрузить изображение.')
     }
-    // Сбрасываем input чтобы можно было загрузить тот же файл повторно
     if (fileInputRef.current) fileInputRef.current.value = ''
   }
 
@@ -48,38 +44,63 @@ export default function TipTapEditor({ content, onChange }: Props) {
     if (url) editor?.chain().focus().setYoutubeVideo({ src: url }).run()
   }
 
-  const btnClass = (active: boolean) =>
-    `px-2 py-1 text-sm rounded border ${
-      active ? 'bg-indigo-600 text-white border-indigo-600' : 'border-gray-300 hover:bg-gray-100'
-    }`
+  const btn = (active: boolean) => `tiptap-btn${active ? ' is-active' : ''}`
 
   return (
-    <div className="border border-gray-300 rounded-lg overflow-hidden">
-      {/* Панель инструментов */}
-      <div className="flex flex-wrap gap-1 p-2 bg-gray-50 border-b border-gray-200">
-        <button type="button" onClick={() => editor.chain().focus().toggleBold().run()} className={btnClass(editor.isActive('bold'))}>Ж</button>
-        <button type="button" onClick={() => editor.chain().focus().toggleItalic().run()} className={btnClass(editor.isActive('italic'))}>К</button>
-        <button type="button" onClick={() => editor.chain().focus().toggleStrike().run()} className={btnClass(editor.isActive('strike'))}>S̶</button>
-        <span className="w-px bg-gray-300 mx-1" />
-        <button type="button" onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} className={btnClass(editor.isActive('heading', { level: 2 }))}>H2</button>
-        <button type="button" onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()} className={btnClass(editor.isActive('heading', { level: 3 }))}>H3</button>
-        <span className="w-px bg-gray-300 mx-1" />
-        <button type="button" onClick={() => editor.chain().focus().toggleBulletList().run()} className={btnClass(editor.isActive('bulletList'))}>• Список</button>
-        <button type="button" onClick={() => editor.chain().focus().toggleOrderedList().run()} className={btnClass(editor.isActive('orderedList'))}>1. Список</button>
-        <span className="w-px bg-gray-300 mx-1" />
-        <button type="button" onClick={() => fileInputRef.current?.click()} className="px-2 py-1 text-sm rounded border border-gray-300 hover:bg-gray-100">
+    <div
+      className="rounded-lg overflow-hidden"
+      style={{ border: '1px solid var(--border)' }}
+    >
+      {/* Тулбар */}
+      <div
+        className="flex flex-wrap gap-1 p-2"
+        style={{ background: 'var(--surface-raised)', borderBottom: '1px solid var(--border)' }}
+      >
+        <button type="button" onClick={() => editor.chain().focus().toggleBold().run()} className={btn(editor.isActive('bold'))}>
+          <strong>Ж</strong>
+        </button>
+        <button type="button" onClick={() => editor.chain().focus().toggleItalic().run()} className={btn(editor.isActive('italic'))}>
+          <em>К</em>
+        </button>
+        <button type="button" onClick={() => editor.chain().focus().toggleStrike().run()} className={btn(editor.isActive('strike'))}>
+          <s>З</s>
+        </button>
+
+        <span style={{ width: '1px', background: 'var(--border)', margin: '2px 4px' }} />
+
+        <button type="button" onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} className={btn(editor.isActive('heading', { level: 2 }))}>
+          H2
+        </button>
+        <button type="button" onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()} className={btn(editor.isActive('heading', { level: 3 }))}>
+          H3
+        </button>
+
+        <span style={{ width: '1px', background: 'var(--border)', margin: '2px 4px' }} />
+
+        <button type="button" onClick={() => editor.chain().focus().toggleBulletList().run()} className={btn(editor.isActive('bulletList'))}>
+          • Список
+        </button>
+        <button type="button" onClick={() => editor.chain().focus().toggleOrderedList().run()} className={btn(editor.isActive('orderedList'))}>
+          1. Список
+        </button>
+
+        <span style={{ width: '1px', background: 'var(--border)', margin: '2px 4px' }} />
+
+        <button type="button" onClick={() => fileInputRef.current?.click()} className="tiptap-btn">
           🖼 Фото
         </button>
-        <button type="button" onClick={insertYoutube} className="px-2 py-1 text-sm rounded border border-gray-300 hover:bg-gray-100">
+        <button type="button" onClick={insertYoutube} className="tiptap-btn">
           ▶ YouTube
         </button>
+
         <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
       </div>
 
       {/* Область редактирования */}
       <EditorContent
         editor={editor}
-        className="prose prose-sm max-w-none p-4 min-h-[200px] focus-within:outline-none"
+        className="p-4 min-h-[200px]"
+        style={{ background: 'var(--bg)' }}
       />
     </div>
   )
