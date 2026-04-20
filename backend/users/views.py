@@ -2,7 +2,7 @@ from rest_framework import status
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.throttling import ScopedRateThrottle
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
@@ -40,6 +40,8 @@ class VerifyEmailView(APIView):
 
 class MeView(APIView):
     """GET /api/auth/me/ — данные текущего пользователя."""
+
+    permission_classes = [IsAuthenticated]
 
     def get(self, request: Request) -> Response:
         serializer = UserSerializer(request.user)
