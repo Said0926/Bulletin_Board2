@@ -17,8 +17,13 @@ class RegisterSerializer(serializers.Serializer):
     password = serializers.CharField(min_length=8, write_only=True)
 
     def validate_email(self, value: str) -> str:
-        if User.objects.filter(email=value).exists():
-            raise serializers.ValidationError('Пользователь с таким email уже существует.')
+        existing = User.objects.filter(email=value).first()
+        if existing:
+            if existing.is_email_verified:
+                raise serializers.ValidationError('Пользователь с таким email уже существует.')
+            # Незаверифицированный пользователь — удаляем, чтобы дать ему попробовать снова.
+            # Иначе он застрянет: повторная регистрация заблокирована, а код уже истёк.
+            existing.delete()
         return value
 
     def create(self, validated_data: dict) -> dict:
