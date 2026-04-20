@@ -227,7 +227,13 @@ class ImageUploadView(APIView):
         serializer.is_valid(raise_exception=True)
 
         image = serializer.validated_data['image']
-        ext = os.path.splitext(image.name)[1].lower()
+        # Определяем расширение по реальному формату PIL, а не по имени файла —
+        # иначе JPEG можно загрузить с именем exploit.html и он будет отдаваться как HTML.
+        from PIL import Image as PILImage
+        _FORMAT_TO_EXT = {'JPEG': '.jpg', 'PNG': '.png', 'GIF': '.gif', 'WEBP': '.webp'}
+        pil_img = PILImage.open(image)
+        ext = _FORMAT_TO_EXT.get(pil_img.format or '', '.jpg')
+        image.seek(0)
         filename = f'{uuid.uuid4()}{ext}'
         upload_path = os.path.join(settings.MEDIA_ROOT, 'uploads', filename)
 
